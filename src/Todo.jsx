@@ -1,8 +1,11 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import Login from './Login'
+import { useNavigate } from "react-router-dom";
 
 function Todo() {
+    const navigate = useNavigate();
     const [tasks, setTasks] = useState([])
 
     const [taskInput, setTaskInput] = useState("")
@@ -11,13 +14,18 @@ function Todo() {
     const [editValue, setEditValue] = useState("")
 
     const getTasks = () => {
-        axios.get("http://localhost:3000")
+        let token = localStorage.getItem("token")
+        axios.get("http://localhost:3000/task?token="+token)
         .then(res => {
             setTasks(res.data)
         })
     }
 
     useEffect(()=>{
+        let token = localStorage.getItem("token")
+        if (!token){
+            navigate("/login")
+        }
         getTasks()
     }, [])
 
@@ -25,9 +33,9 @@ function Todo() {
         let data = {
             "task": taskInput,
             "isCompleted": false,
-            "user": "New user"
+            "user": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im5pZGhlZXNoQGdtYWlsLmNvbSIsImlhdCI6MTczMDQ3NDE2OX0.g5-AyDrU3ddtvMZsF8a0Ue090id8AFY1jQ1RdP1gqT0"
         }
-        axios.post("http://localhost:3000", {data})
+        axios.post("http://localhost:3000/task", data)
         .then(res => {
             alert("Added successfully")
             getTasks()
@@ -69,6 +77,7 @@ function Todo() {
 
     return (
         <>
+            <hr />
             <h1>Todo App</h1>
             <input type = "text" onChange={inputChanged}/>
             <button onClick = {addTask}>Add task</button>
